@@ -1,0 +1,159 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Supertux-commit] r4540 - in trunk/supertux/src: . object video
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/supertux-commit/2007-January/index.html" >
+   <LINK REL="made" HREF="mailto:supertux-commit%40lists.berlios.de?Subject=Re%3A%20%5BSupertux-commit%5D%20r4540%20-%20in%20trunk/supertux/src%3A%20.%20object%20video&In-Reply-To=%3C200701101755.l0AHtxEJ000645%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000017.html">
+   <LINK REL="Next"  HREF="000019.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Supertux-commit] r4540 - in trunk/supertux/src: . object video</H1>
+    <B>wolfgangb at BerliOS</B> 
+    <A HREF="mailto:supertux-commit%40lists.berlios.de?Subject=Re%3A%20%5BSupertux-commit%5D%20r4540%20-%20in%20trunk/supertux/src%3A%20.%20object%20video&In-Reply-To=%3C200701101755.l0AHtxEJ000645%40sheep.berlios.de%3E"
+       TITLE="[Supertux-commit] r4540 - in trunk/supertux/src: . object video">wolfgangb at mail.berlios.de
+       </A><BR>
+    <I>Wed Jan 10 18:55:59 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000017.html">[Supertux-commit] r4539 - trunk/supertux/src
+</A></li>
+        <LI>Next message: <A HREF="000019.html">[Supertux-commit] r4541 - trunk/supertux/src/video
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#18">[ date ]</a>
+              <a href="thread.html#18">[ thread ]</a>
+              <a href="subject.html#18">[ subject ]</a>
+              <a href="author.html#18">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: wolfgangb
+Date: 2007-01-10 18:55:56 +0100 (Wed, 10 Jan 2007)
+New Revision: 4540
+
+Modified:
+   trunk/supertux/src/game_session.hpp
+   trunk/supertux/src/object/firefly.cpp
+   trunk/supertux/src/object/firefly.hpp
+   trunk/supertux/src/video/drawing_context.cpp
+Log:
+Activate firefly on restart
+
+Modified: trunk/supertux/src/game_session.hpp
+===================================================================
+--- trunk/supertux/src/game_session.hpp	2007-01-09 18:18:16 UTC (rev 4539)
++++ trunk/supertux/src/game_session.hpp	2007-01-10 17:55:56 UTC (rev 4540)
+@@ -62,6 +62,12 @@
+   void finish(bool win = true);
+   void respawn(const std::string&amp; sectorname, const std::string&amp; spawnpointname);
+   void set_reset_point(const std::string&amp; sectorname, const Vector&amp; pos);
++  std::string get_reset_point_sectorname()
++  { return reset_sector; }
++  
++  Vector get_reset_point_pos()
++  { return reset_pos; }
++
+   void display_info_box(const std::string&amp; text);
+ 
+   Sector* get_current_sector()
+
+Modified: trunk/supertux/src/object/firefly.cpp
+===================================================================
+--- trunk/supertux/src/object/firefly.cpp	2007-01-09 18:18:16 UTC (rev 4539)
++++ trunk/supertux/src/object/firefly.cpp	2007-01-10 17:55:56 UTC (rev 4540)
+@@ -33,19 +33,34 @@
+ Firefly::Firefly(const lisp::Lisp&amp; lisp)
+        : MovingSprite(lisp, &quot;images/objects/resetpoints/default-resetpoint.sprite&quot;, LAYER_TILES, COLGROUP_TOUCHABLE), activated(false)
+ {
+-
+   if( !lisp.get( &quot;sprite&quot;, sprite_name ) ){
++    reactivate();
+     return;
+   }
+   if( sprite_name == &quot;&quot; ){
+     sprite_name = &quot;images/objects/resetpoints/default-resetpoint.sprite&quot;;
++    reactivate();
+     return;
+   }
+   //Replace sprite
+   sprite = sprite_manager-&gt;create( sprite_name );
+   bbox.set_size(sprite-&gt;get_current_hitbox_width(), sprite-&gt;get_current_hitbox_height());
++  reactivate();
+ }
+ 
++void 
++Firefly::reactivate()
++{
++  if(GameSession::current()-&gt;get_reset_point_pos() == get_pos()){
++    // TODO: &amp;&amp; GameSession::current()-&gt;get_reset_point_sectorname() ==  &lt;sector this firefly is in&gt;
++    // GameSession::current()-&gt;get_current_sector()-&gt;get_name() is not yet initialized.
++    // Worst case a resetpoint in a different sector at the same position as the real
++    // resetpoint the player is spawning is set to ringing, too. Until we can check the sector, too, dont set
++    // activated = true; here.
++    sprite-&gt;set_action(&quot;ringing&quot;);
++  }
++}
++
+ void
+ Firefly::write(lisp::Writer&amp; writer)
+ {
+
+Modified: trunk/supertux/src/object/firefly.hpp
+===================================================================
+--- trunk/supertux/src/object/firefly.hpp	2007-01-09 18:18:16 UTC (rev 4539)
++++ trunk/supertux/src/object/firefly.hpp	2007-01-10 17:55:56 UTC (rev 4540)
+@@ -40,6 +40,7 @@
+ 
+ private:
+   bool activated;
++  void reactivate();
+ };
+ 
+ #endif
+
+Modified: trunk/supertux/src/video/drawing_context.cpp
+===================================================================
+--- trunk/supertux/src/video/drawing_context.cpp	2007-01-09 18:18:16 UTC (rev 4539)
++++ trunk/supertux/src/video/drawing_context.cpp	2007-01-10 17:55:56 UTC (rev 4540)
+@@ -33,7 +33,7 @@
+ #include &quot;glutil.hpp&quot;
+ #include &quot;texture.hpp&quot;
+ #include &quot;texture_manager.hpp&quot;
+-#define LIGHTMAP_DIV 1
++#define LIGHTMAP_DIV 5
+ 
+ static inline int next_po2(int val)
+ {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000017.html">[Supertux-commit] r4539 - trunk/supertux/src
+</A></li>
+	<LI>Next message: <A HREF="000019.html">[Supertux-commit] r4541 - trunk/supertux/src/video
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#18">[ date ]</a>
+              <a href="thread.html#18">[ thread ]</a>
+              <a href="subject.html#18">[ subject ]</a>
+              <a href="author.html#18">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/supertux-commit">More information about the Supertux-commit
+mailing list</a><br>
+</body></html>

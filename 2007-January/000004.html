@@ -1,0 +1,222 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Supertux-commit] r4525 - in trunk/supertux: data/levels/world2	src/badguy
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/supertux-commit/2007-January/index.html" >
+   <LINK REL="made" HREF="mailto:supertux-commit%40lists.berlios.de?Subject=Re%3A%20%5BSupertux-commit%5D%20r4525%20-%20in%20trunk/supertux%3A%20data/levels/world2%0A%09src/badguy&In-Reply-To=%3C200701032335.l03NZLQM018362%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000003.html">
+   <LINK REL="Next"  HREF="000005.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Supertux-commit] r4525 - in trunk/supertux: data/levels/world2	src/badguy</H1>
+    <B>sommer at BerliOS</B> 
+    <A HREF="mailto:supertux-commit%40lists.berlios.de?Subject=Re%3A%20%5BSupertux-commit%5D%20r4525%20-%20in%20trunk/supertux%3A%20data/levels/world2%0A%09src/badguy&In-Reply-To=%3C200701032335.l03NZLQM018362%40sheep.berlios.de%3E"
+       TITLE="[Supertux-commit] r4525 - in trunk/supertux: data/levels/world2	src/badguy">sommer at mail.berlios.de
+       </A><BR>
+    <I>Thu Jan  4 00:35:21 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000003.html">[Supertux-commit] r4524 - in trunk/supertux/src: . badguy object	scripting
+</A></li>
+        <LI>Next message: <A HREF="000005.html">[Supertux-commit] r4526 - in trunk/supertux: . man man/man6
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#4">[ date ]</a>
+              <a href="thread.html#4">[ thread ]</a>
+              <a href="subject.html#4">[ subject ]</a>
+              <a href="author.html#4">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: sommer
+Date: 2007-01-04 00:35:19 +0100 (Thu, 04 Jan 2007)
+New Revision: 4525
+
+Modified:
+   trunk/supertux/data/levels/world2/christoph5.stl
+   trunk/supertux/src/badguy/badguy.cpp
+   trunk/supertux/src/badguy/badguy.hpp
+   trunk/supertux/src/badguy/yeti.cpp
+   trunk/supertux/src/badguy/yeti.hpp
+Log:
+Allow dead-script on any badguy
+
+
+Modified: trunk/supertux/data/levels/world2/christoph5.stl
+===================================================================
+(Contents removed)
+
+Modified: trunk/supertux/src/badguy/badguy.cpp
+===================================================================
+--- trunk/supertux/src/badguy/badguy.cpp	2007-01-02 17:07:50 UTC (rev 4524)
++++ trunk/supertux/src/badguy/badguy.cpp	2007-01-03 23:35:19 UTC (rev 4525)
+@@ -28,13 +28,15 @@
+ #include &quot;level.hpp&quot;
+ #include &quot;object/bullet.hpp&quot;
+ #include &quot;main.hpp&quot;
++#include &quot;object/particles.hpp&quot;
++#include &quot;random_generator.hpp&quot;
+ 
+ static const float SQUISH_TIME = 2;
+ static const float X_OFFSCREEN_DISTANCE = 1600;
+ static const float Y_OFFSCREEN_DISTANCE = 1200;
+ 
+ BadGuy::BadGuy(const Vector&amp; pos, const std::string&amp; sprite_name, int layer)
+-  : MovingSprite(pos, sprite_name, layer, COLGROUP_DISABLED), countMe(true), dir(LEFT), start_dir(AUTO), frozen(false), ignited(false), state(STATE_INIT), on_ground_flag(false)
++  : MovingSprite(pos, sprite_name, layer, COLGROUP_DISABLED), countMe(true), dir(LEFT), start_dir(AUTO), frozen(false), ignited(false), draw_dead_script_hint(false), state(STATE_INIT), on_ground_flag(false)
+ {
+   start_position = bbox.p1;
+ 
+@@ -43,7 +45,7 @@
+ }
+ 
+ BadGuy::BadGuy(const Vector&amp; pos, Direction direction, const std::string&amp; sprite_name, int layer)
+-  : MovingSprite(pos, sprite_name, layer, COLGROUP_DISABLED), countMe(true), dir(direction), start_dir(direction), frozen(false), ignited(false), state(STATE_INIT), on_ground_flag(false)
++  : MovingSprite(pos, sprite_name, layer, COLGROUP_DISABLED), countMe(true), dir(direction), start_dir(direction), frozen(false), ignited(false), draw_dead_script_hint(false), state(STATE_INIT), on_ground_flag(false)
+ {
+   start_position = bbox.p1;
+ 
+@@ -60,6 +62,9 @@
+   reader.get(&quot;direction&quot;, dir_str);
+   start_dir = str2dir( dir_str );
+   dir = start_dir;
++  
++  reader.get(&quot;dead-script&quot;, dead_script);
++  draw_dead_script_hint = (dead_script != &quot;&quot;);
+ 
+   sound_manager-&gt;preload(&quot;sounds/squish.wav&quot;);
+   sound_manager-&gt;preload(&quot;sounds/fall.wav&quot;);
+@@ -79,6 +84,11 @@
+     context.set_drawing_effect(old_effect);
+   } else {
+     sprite-&gt;draw(context, get_pos(), layer);
++    if (draw_dead_script_hint) {
++      Vector ppos = Vector(systemRandom.randf(bbox.p1.x+8, bbox.p2.x-8), bbox.p2.y);
++      Vector pspeed = Vector(0, -100);
++      Sector::current()-&gt;add_object(new Particles(ppos, 44, 46, pspeed, Vector(0,0), 1, Color(.6, .2, .2), 3, .1, LAYER_OBJECTS+1));
++    }
+   }
+ }
+ 
+@@ -319,6 +329,12 @@
+     if (countMe) Sector::current()-&gt;get_level()-&gt;stats.badguys++;
+     player-&gt;bounce(*this);
+   }
++
++  // start dead-script
++  if(dead_script != &quot;&quot;) {
++    std::istringstream stream(dead_script);
++    Sector::current()-&gt;run_script(stream, &quot;dead-script&quot;);
++  }
+ }
+ 
+ void
+@@ -329,6 +345,12 @@
+   physic.set_velocity_y(0);
+   physic.enable_gravity(true);
+   set_state(STATE_FALLING);
++
++  // start dead-script
++  if(dead_script != &quot;&quot;) {
++    std::istringstream stream(dead_script);
++    Sector::current()-&gt;run_script(stream, &quot;dead-script&quot;);
++  }
+ }
+ 
+ void
+
+Modified: trunk/supertux/src/badguy/badguy.hpp
+===================================================================
+--- trunk/supertux/src/badguy/badguy.hpp	2007-01-02 17:07:50 UTC (rev 4524)
++++ trunk/supertux/src/badguy/badguy.hpp	2007-01-03 23:35:19 UTC (rev 4525)
+@@ -226,6 +226,9 @@
+ 
+   bool frozen;
+   bool ignited; /**&lt; true if this badguy is currently on fire */
++  
++  std::string dead_script; /**&lt; script to execute when badguy is killed */
++  bool draw_dead_script_hint; /**&lt; whether to draw a visual indication that this Badguy triggers a script */
+ 
+ private:
+   void try_activate();
+
+Modified: trunk/supertux/src/badguy/yeti.cpp
+===================================================================
+--- trunk/supertux/src/badguy/yeti.cpp	2007-01-02 17:07:50 UTC (rev 4524)
++++ trunk/supertux/src/badguy/yeti.cpp	2007-01-03 23:35:19 UTC (rev 4525)
+@@ -56,10 +56,10 @@
+ 	: BadGuy(reader, &quot;images/creatures/yeti/yeti.sprite&quot;)
+ {
+   hit_points = INITIAL_HITPOINTS;
+-  reader.get(&quot;dead-script&quot;, dead_script);
+   countMe = false;
+   sound_manager-&gt;preload(&quot;sounds/yeti_gna.wav&quot;);
+   sound_manager-&gt;preload(&quot;sounds/yeti_roar.wav&quot;);
++  draw_dead_script_hint = false;
+ }
+ 
+ Yeti::~Yeti()
+@@ -202,7 +202,6 @@
+ 
+     if (countMe) Sector::current()-&gt;get_level()-&gt;stats.badguys++;
+ 
+-    // start script
+     if(dead_script != &quot;&quot;) {
+       std::istringstream stream(dead_script);
+       Sector::current()-&gt;run_script(stream, &quot;Yeti - dead-script&quot;);
+@@ -228,10 +227,6 @@
+   writer.write_float(&quot;x&quot;, start_position.x);
+   writer.write_float(&quot;y&quot;, start_position.y);
+ 
+-  if(dead_script != &quot;&quot;) {
+-    writer.write_string(&quot;dead-script&quot;, dead_script);
+-  }
+-
+   writer.end_list(&quot;yeti&quot;);
+ }
+ 
+
+Modified: trunk/supertux/src/badguy/yeti.hpp
+===================================================================
+--- trunk/supertux/src/badguy/yeti.hpp	2007-01-02 17:07:50 UTC (rev 4524)
++++ trunk/supertux/src/badguy/yeti.hpp	2007-01-03 23:35:19 UTC (rev 4525)
+@@ -62,7 +62,6 @@
+   Timer safe_timer;
+   int stomp_count;
+   int hit_points;
+-  std::string dead_script;
+ };
+ 
+ #endif
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000003.html">[Supertux-commit] r4524 - in trunk/supertux/src: . badguy object	scripting
+</A></li>
+	<LI>Next message: <A HREF="000005.html">[Supertux-commit] r4526 - in trunk/supertux: . man man/man6
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#4">[ date ]</a>
+              <a href="thread.html#4">[ thread ]</a>
+              <a href="subject.html#4">[ subject ]</a>
+              <a href="author.html#4">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/supertux-commit">More information about the Supertux-commit
+mailing list</a><br>
+</body></html>

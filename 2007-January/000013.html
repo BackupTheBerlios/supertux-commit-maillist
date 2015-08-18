@@ -1,0 +1,139 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Supertux-commit] r4535 - in trunk/supertux: data/levels/world1 src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/supertux-commit/2007-January/index.html" >
+   <LINK REL="made" HREF="mailto:supertux-commit%40lists.berlios.de?Subject=Re%3A%20%5BSupertux-commit%5D%20r4535%20-%20in%20trunk/supertux%3A%20data/levels/world1%20src&In-Reply-To=%3C200701082124.l08LOrQh014082%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000012.html">
+   <LINK REL="Next"  HREF="000014.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Supertux-commit] r4535 - in trunk/supertux: data/levels/world1 src</H1>
+    <B>sommer at BerliOS</B> 
+    <A HREF="mailto:supertux-commit%40lists.berlios.de?Subject=Re%3A%20%5BSupertux-commit%5D%20r4535%20-%20in%20trunk/supertux%3A%20data/levels/world1%20src&In-Reply-To=%3C200701082124.l08LOrQh014082%40sheep.berlios.de%3E"
+       TITLE="[Supertux-commit] r4535 - in trunk/supertux: data/levels/world1 src">sommer at mail.berlios.de
+       </A><BR>
+    <I>Mon Jan  8 22:24:53 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000012.html">[Supertux-commit] r4534 - in trunk/supertux/src: . lisp
+</A></li>
+        <LI>Next message: <A HREF="000014.html">[Supertux-commit] r4536 - in trunk/supertux/src: . object
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#13">[ date ]</a>
+              <a href="thread.html#13">[ thread ]</a>
+              <a href="subject.html#13">[ subject ]</a>
+              <a href="author.html#13">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: sommer
+Date: 2007-01-08 22:24:52 +0100 (Mon, 08 Jan 2007)
+New Revision: 4535
+
+Modified:
+   trunk/supertux/data/levels/world1/27 - No More Mr Ice Guy.stl
+   trunk/supertux/src/physic.cpp
+   trunk/supertux/src/physic.hpp
+   trunk/supertux/src/sector.cpp
+Log:
+Changed default gravity to 10.0
+
+
+Modified: trunk/supertux/data/levels/world1/27 - No More Mr Ice Guy.stl
+===================================================================
+(Contents removed)
+
+Modified: trunk/supertux/src/physic.cpp
+===================================================================
+--- trunk/supertux/src/physic.cpp	2007-01-08 21:13:17 UTC (rev 4534)
++++ trunk/supertux/src/physic.cpp	2007-01-08 21:24:52 UTC (rev 4535)
+@@ -23,7 +23,7 @@
+ #include &quot;physic.hpp&quot;
+ 
+ Physic::Physic()
+-    : ax(0), ay(0), vx(0), vy(0), gravity_enabled_flag(true), gravity(1000)
++    : ax(0), ay(0), vx(0), vy(0), gravity_enabled_flag(true), gravity(10 * 100)
+ {
+ }
+ 
+@@ -144,13 +144,13 @@
+ void
+ Physic::set_gravity(float gravity)
+ {
+-  this-&gt;gravity = gravity;
++  this-&gt;gravity = gravity * 100;
+ }
+ 
+ float
+ Physic::get_gravity() const
+ {
+-  return gravity;
++  return gravity / 100;
+ }
+ 
+ Vector
+
+Modified: trunk/supertux/src/physic.hpp
+===================================================================
+--- trunk/supertux/src/physic.hpp	2007-01-08 21:13:17 UTC (rev 4534)
++++ trunk/supertux/src/physic.hpp	2007-01-08 21:24:52 UTC (rev 4535)
+@@ -81,9 +81,9 @@
+   float ax, ay;
+   /// horizontal and vertical velocity
+   float vx, vy;
+-  /// should we respect gravity in out calculations?
++  /// should we respect gravity in our calculations?
+   bool gravity_enabled_flag;
+-  /// current gravity to apply to object, if enabled
++  /// current gravity (multiplied by 100) to apply to object, if enabled
+   float gravity;
+ };
+ 
+
+Modified: trunk/supertux/src/sector.cpp
+===================================================================
+--- trunk/supertux/src/sector.cpp	2007-01-08 21:13:17 UTC (rev 4534)
++++ trunk/supertux/src/sector.cpp	2007-01-08 21:24:52 UTC (rev 4535)
+@@ -74,7 +74,7 @@
+ 
+ Sector::Sector(Level* parent)
+   : level(parent), currentmusic(LEVEL_MUSIC),
+-  ambient_light( 1.0f, 1.0f, 1.0f, 1.0f ), gravity(1000.0), player(0), camera(0) 
++  ambient_light( 1.0f, 1.0f, 1.0f, 1.0f ), gravity(10.0), player(0), camera(0) 
+ {
+   add_object(new Player(player_status, &quot;Tux&quot;));
+   add_object(new DisplayEffect(&quot;Effect&quot;));
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000012.html">[Supertux-commit] r4534 - in trunk/supertux/src: . lisp
+</A></li>
+	<LI>Next message: <A HREF="000014.html">[Supertux-commit] r4536 - in trunk/supertux/src: . object
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#13">[ date ]</a>
+              <a href="thread.html#13">[ thread ]</a>
+              <a href="subject.html#13">[ subject ]</a>
+              <a href="author.html#13">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/supertux-commit">More information about the Supertux-commit
+mailing list</a><br>
+</body></html>

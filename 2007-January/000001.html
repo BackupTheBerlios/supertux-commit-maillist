@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Supertux-commit] r4520 - in trunk/supertux: . src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/supertux-commit/2007-January/index.html" >
+   <LINK REL="made" HREF="mailto:supertux-commit%40lists.berlios.de?Subject=Re%3A%20%5BSupertux-commit%5D%20r4520%20-%20in%20trunk/supertux%3A%20.%20src&In-Reply-To=%3C200701011935.l01JZ92T004006%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000000.html">
+   <LINK REL="Next"  HREF="000002.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Supertux-commit] r4520 - in trunk/supertux: . src</H1>
+    <B>wolfgangb at BerliOS</B> 
+    <A HREF="mailto:supertux-commit%40lists.berlios.de?Subject=Re%3A%20%5BSupertux-commit%5D%20r4520%20-%20in%20trunk/supertux%3A%20.%20src&In-Reply-To=%3C200701011935.l01JZ92T004006%40sheep.berlios.de%3E"
+       TITLE="[Supertux-commit] r4520 - in trunk/supertux: . src">wolfgangb at mail.berlios.de
+       </A><BR>
+    <I>Mon Jan  1 20:35:09 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000000.html">[Supertux-commit] r4519 -	branches/supertux-sharp/0_3_x/tools/innosetup
+</A></li>
+        <LI>Next message: <A HREF="000002.html">[Supertux-commit] r4523 - in trunk/supertux/src: . badguy object	scripting
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1">[ date ]</a>
+              <a href="thread.html#1">[ thread ]</a>
+              <a href="subject.html#1">[ subject ]</a>
+              <a href="author.html#1">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: wolfgangb
+Date: 2007-01-01 20:35:08 +0100 (Mon, 01 Jan 2007)
+New Revision: 4520
+
+Modified:
+   trunk/supertux/configure.ac
+   trunk/supertux/src/main.cpp
+Log:
+Disable scripting console and fps display via command line.
+
+
+Modified: trunk/supertux/configure.ac
+===================================================================
+--- trunk/supertux/configure.ac	2007-01-01 14:03:55 UTC (rev 4519)
++++ trunk/supertux/configure.ac	2007-01-01 19:35:08 UTC (rev 4520)
+@@ -11,7 +11,7 @@
+ 
+ dnl Process this file with autoconf to produce a configure script.
+ AC_PREREQ([2.54])
+-AC_INIT(supertux, 0.3.0)
++AC_INIT(supertux, 0.3.0-SVN)
+ AC_CONFIG_SRCDIR([src/main.cpp])
+ AC_CONFIG_AUX_DIR([mk/autoconf])
+ AC_CANONICAL_TARGET
+
+Modified: trunk/supertux/src/main.cpp
+===================================================================
+--- trunk/supertux/src/main.cpp	2007-01-01 14:03:55 UTC (rev 4519)
++++ trunk/supertux/src/main.cpp	2007-01-01 19:35:08 UTC (rev 4520)
+@@ -215,7 +215,9 @@
+             &quot;  --help                       Show this help message\n&quot;
+             &quot;  --version                    Display SuperTux version and quit\n&quot;
+             &quot;  --console                    Enable ingame scripting console\n&quot;
++            &quot;  --noconsole                  Disable ingame scripting console\n&quot;
+             &quot;  --show-fps                   Display framerate in levels\n&quot;
++            &quot;  --no-show-fps                Do not display framerate in levels\n&quot;
+             &quot;  --record-demo FILE LEVEL     Record a demo to FILE\n&quot;
+             &quot;  --play-demo FILE LEVEL       Play a recorded demo\n&quot;
+             &quot;\n&quot;));
+@@ -265,8 +267,12 @@
+       }
+     } else if(arg == &quot;--show-fps&quot;) {
+       config-&gt;show_fps = true;
++    } else if(arg == &quot;--no-show-fps&quot;) {
++      config-&gt;show_fps = false;
+     } else if(arg == &quot;--console&quot;) {
+       config-&gt;console_enabled = true;
++    } else if(arg == &quot;--noconsole&quot;) {
++      config-&gt;console_enabled = false;
+     } else if(arg == &quot;--disable-sfx&quot;) {
+       config-&gt;sound_enabled = false;
+     } else if(arg == &quot;--disable-music&quot;) {
+@@ -289,6 +295,7 @@
+       config-&gt;start_level = arg;
+     } else {
+       log_warning &lt;&lt; &quot;Unknown option '&quot; &lt;&lt; arg &lt;&lt; &quot;'. Use --help to see a list of options&quot; &lt;&lt; std::endl;
++      return true;
+     }
+   }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000000.html">[Supertux-commit] r4519 -	branches/supertux-sharp/0_3_x/tools/innosetup
+</A></li>
+	<LI>Next message: <A HREF="000002.html">[Supertux-commit] r4523 - in trunk/supertux/src: . badguy object	scripting
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1">[ date ]</a>
+              <a href="thread.html#1">[ thread ]</a>
+              <a href="subject.html#1">[ subject ]</a>
+              <a href="author.html#1">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/supertux-commit">More information about the Supertux-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Supertux-commit] r4543 - trunk/supertux/src/badguy
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/supertux-commit/2007-January/index.html" >
+   <LINK REL="made" HREF="mailto:supertux-commit%40lists.berlios.de?Subject=Re%3A%20%5BSupertux-commit%5D%20r4543%20-%20trunk/supertux/src/badguy&In-Reply-To=%3C200701121931.l0CJV8PZ014927%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000020.html">
+   <LINK REL="Next"  HREF="000022.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Supertux-commit] r4543 - trunk/supertux/src/badguy</H1>
+    <B>wolfgangb at BerliOS</B> 
+    <A HREF="mailto:supertux-commit%40lists.berlios.de?Subject=Re%3A%20%5BSupertux-commit%5D%20r4543%20-%20trunk/supertux/src/badguy&In-Reply-To=%3C200701121931.l0CJV8PZ014927%40sheep.berlios.de%3E"
+       TITLE="[Supertux-commit] r4543 - trunk/supertux/src/badguy">wolfgangb at mail.berlios.de
+       </A><BR>
+    <I>Fri Jan 12 20:31:08 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000020.html">[Supertux-commit] r4542 - in trunk/supertux: . mk mk/cmake	src/squirrel
+</A></li>
+        <LI>Next message: <A HREF="000022.html">[Supertux-commit] r4544 - in trunk/supertux: man/man6 src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#21">[ date ]</a>
+              <a href="thread.html#21">[ thread ]</a>
+              <a href="subject.html#21">[ subject ]</a>
+              <a href="author.html#21">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: wolfgangb
+Date: 2007-01-12 20:31:08 +0100 (Fri, 12 Jan 2007)
+New Revision: 4543
+
+Modified:
+   trunk/supertux/src/badguy/badguy.cpp
+Log:
+offscreen.patch by Klaus Denker: correct some calculations 
+
+
+Modified: trunk/supertux/src/badguy/badguy.cpp
+===================================================================
+--- trunk/supertux/src/badguy/badguy.cpp	2007-01-10 22:08:15 UTC (rev 4542)
++++ trunk/supertux/src/badguy/badguy.cpp	2007-01-12 19:31:08 UTC (rev 4543)
+@@ -391,9 +391,9 @@
+   float scroll_y = Sector::current()-&gt;camera-&gt;get_translation().y;
+ 
+   if(bbox.p2.x &lt; scroll_x - X_OFFSCREEN_DISTANCE
+-      || bbox.p1.x &gt; scroll_x + X_OFFSCREEN_DISTANCE
++      || bbox.p1.x &gt; scroll_x + X_OFFSCREEN_DISTANCE + SCREEN_WIDTH
+       || bbox.p2.y &lt; scroll_y - Y_OFFSCREEN_DISTANCE
+-      || bbox.p1.y &gt; scroll_y + Y_OFFSCREEN_DISTANCE)
++      || bbox.p1.y &gt; scroll_y + Y_OFFSCREEN_DISTANCE + SCREEN_HEIGHT)
+     return true;
+ 
+   return false;
+@@ -412,7 +412,7 @@
+   if (start_position.x &gt; scroll_x - X_OFFSCREEN_DISTANCE &amp;&amp;
+       start_position.x &lt; scroll_x - bbox.get_width() &amp;&amp;
+       start_position.y &gt; scroll_y - Y_OFFSCREEN_DISTANCE &amp;&amp;
+-      start_position.y &lt; scroll_y + Y_OFFSCREEN_DISTANCE) {
++      start_position.y &lt; scroll_y + SCREEN_HEIGHT + Y_OFFSCREEN_DISTANCE) {
+     if (start_dir != AUTO) dir = start_dir; else dir = RIGHT;
+     set_state(STATE_ACTIVE);
+     activate();
+@@ -420,13 +420,13 @@
+   } else if (start_position.x &gt; scroll_x +  SCREEN_WIDTH &amp;&amp;
+       start_position.x &lt; scroll_x + SCREEN_WIDTH + X_OFFSCREEN_DISTANCE &amp;&amp;
+       start_position.y &gt; scroll_y - Y_OFFSCREEN_DISTANCE &amp;&amp;
+-      start_position.y &lt; scroll_y + Y_OFFSCREEN_DISTANCE) {
++      start_position.y &lt; scroll_y + SCREEN_HEIGHT + Y_OFFSCREEN_DISTANCE) {
+     if (start_dir != AUTO) dir = start_dir; else dir = LEFT;
+     set_state(STATE_ACTIVE);
+     activate();
+   //Badguy over or under screen
+   } else if (start_position.x &gt; scroll_x - X_OFFSCREEN_DISTANCE &amp;&amp;
+-       start_position.x &lt; scroll_x + X_OFFSCREEN_DISTANCE &amp;&amp;
++       start_position.x &lt; scroll_x + SCREEN_WIDTH + X_OFFSCREEN_DISTANCE &amp;&amp;
+        ((start_position.y &gt; scroll_y + SCREEN_HEIGHT &amp;&amp;
+          start_position.y &lt; scroll_y + SCREEN_HEIGHT + Y_OFFSCREEN_DISTANCE) ||
+         (start_position.y &gt; scroll_y - Y_OFFSCREEN_DISTANCE &amp;&amp;
+@@ -445,9 +445,9 @@
+      activate();
+   } else if(state == STATE_INIT
+       &amp;&amp; start_position.x &gt; scroll_x - X_OFFSCREEN_DISTANCE
+-      &amp;&amp; start_position.x &lt; scroll_x + X_OFFSCREEN_DISTANCE
++      &amp;&amp; start_position.x &lt; scroll_x + X_OFFSCREEN_DISTANCE + SCREEN_WIDTH
+       &amp;&amp; start_position.y &gt; scroll_y - Y_OFFSCREEN_DISTANCE
+-      &amp;&amp; start_position.y &lt; scroll_y + Y_OFFSCREEN_DISTANCE) {
++      &amp;&amp; start_position.y &lt; scroll_y + Y_OFFSCREEN_DISTANCE + SCREEN_HEIGHT ) {
+     if (start_dir != AUTO) {
+       dir = start_dir;
+     } else {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000020.html">[Supertux-commit] r4542 - in trunk/supertux: . mk mk/cmake	src/squirrel
+</A></li>
+	<LI>Next message: <A HREF="000022.html">[Supertux-commit] r4544 - in trunk/supertux: man/man6 src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#21">[ date ]</a>
+              <a href="thread.html#21">[ thread ]</a>
+              <a href="subject.html#21">[ subject ]</a>
+              <a href="author.html#21">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/supertux-commit">More information about the Supertux-commit
+mailing list</a><br>
+</body></html>

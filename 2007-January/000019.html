@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Supertux-commit] r4541 - trunk/supertux/src/video
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/supertux-commit/2007-January/index.html" >
+   <LINK REL="made" HREF="mailto:supertux-commit%40lists.berlios.de?Subject=Re%3A%20%5BSupertux-commit%5D%20r4541%20-%20trunk/supertux/src/video&In-Reply-To=%3C200701101834.l0AIYXFM005025%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000018.html">
+   <LINK REL="Next"  HREF="000020.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Supertux-commit] r4541 - trunk/supertux/src/video</H1>
+    <B>wolfgangb at BerliOS</B> 
+    <A HREF="mailto:supertux-commit%40lists.berlios.de?Subject=Re%3A%20%5BSupertux-commit%5D%20r4541%20-%20trunk/supertux/src/video&In-Reply-To=%3C200701101834.l0AIYXFM005025%40sheep.berlios.de%3E"
+       TITLE="[Supertux-commit] r4541 - trunk/supertux/src/video">wolfgangb at mail.berlios.de
+       </A><BR>
+    <I>Wed Jan 10 19:34:33 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000018.html">[Supertux-commit] r4540 - in trunk/supertux/src: . object video
+</A></li>
+        <LI>Next message: <A HREF="000020.html">[Supertux-commit] r4542 - in trunk/supertux: . mk mk/cmake	src/squirrel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#19">[ date ]</a>
+              <a href="thread.html#19">[ thread ]</a>
+              <a href="subject.html#19">[ subject ]</a>
+              <a href="author.html#19">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: wolfgangb
+Date: 2007-01-10 19:34:33 +0100 (Wed, 10 Jan 2007)
+New Revision: 4541
+
+Modified:
+   trunk/supertux/src/video/drawing_context.cpp
+Log:
+Patch by Klaus Denker:
+The little lightmap_resolution.patch makes the Level &quot;light+magic&quot; playable at
+any screen resolution. It fixes a TODO to calculate the correct
+lightmap-coordinates in the function get_light.
+
+
+
+Modified: trunk/supertux/src/video/drawing_context.cpp
+===================================================================
+--- trunk/supertux/src/video/drawing_context.cpp	2007-01-10 17:55:56 UTC (rev 4540)
++++ trunk/supertux/src/video/drawing_context.cpp	2007-01-10 18:34:33 UTC (rev 4541)
+@@ -273,9 +273,8 @@
+   for( int i = 0; i&lt;3; i++)
+     pixels[i] = 0.0f; //set to black
+ 
+-  float posX = request.pos.x /LIGHTMAP_DIV;
+-  //TODO:this works when playing with 800x600 otherwise posY is wrong
+-  float posY = screen-&gt;h - request.pos.y / LIGHTMAP_DIV;
++  float posX = request.pos.x * lightmap_width / SCREEN_WIDTH;
++  float posY = screen-&gt;h - request.pos.y * lightmap_height / SCREEN_HEIGHT;
+   glReadPixels((GLint) posX, (GLint) posY , 1, 1, GL_RGB, GL_FLOAT, pixels);
+     *(getlightrequest-&gt;color_ptr) = Color( pixels[0], pixels[1], pixels[2]);  
+   //printf(&quot;get_light %f/%f =&gt;%f/%f r%f g%f b%f\n&quot;, request.pos.x, request.pos.y, posX, posY, pixels[0], pixels[1], pixels[2]);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000018.html">[Supertux-commit] r4540 - in trunk/supertux/src: . object video
+</A></li>
+	<LI>Next message: <A HREF="000020.html">[Supertux-commit] r4542 - in trunk/supertux: . mk mk/cmake	src/squirrel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#19">[ date ]</a>
+              <a href="thread.html#19">[ thread ]</a>
+              <a href="subject.html#19">[ subject ]</a>
+              <a href="author.html#19">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/supertux-commit">More information about the Supertux-commit
+mailing list</a><br>
+</body></html>

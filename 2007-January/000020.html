@@ -1,0 +1,438 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Supertux-commit] r4542 - in trunk/supertux: . mk mk/cmake	src/squirrel
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/supertux-commit/2007-January/index.html" >
+   <LINK REL="made" HREF="mailto:supertux-commit%40lists.berlios.de?Subject=Re%3A%20%5BSupertux-commit%5D%20r4542%20-%20in%20trunk/supertux%3A%20.%20mk%20mk/cmake%0A%09src/squirrel&In-Reply-To=%3C200701102208.l0AM8F6M023110%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000019.html">
+   <LINK REL="Next"  HREF="000021.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Supertux-commit] r4542 - in trunk/supertux: . mk mk/cmake	src/squirrel</H1>
+    <B>sommer at BerliOS</B> 
+    <A HREF="mailto:supertux-commit%40lists.berlios.de?Subject=Re%3A%20%5BSupertux-commit%5D%20r4542%20-%20in%20trunk/supertux%3A%20.%20mk%20mk/cmake%0A%09src/squirrel&In-Reply-To=%3C200701102208.l0AM8F6M023110%40sheep.berlios.de%3E"
+       TITLE="[Supertux-commit] r4542 - in trunk/supertux: . mk mk/cmake	src/squirrel">sommer at mail.berlios.de
+       </A><BR>
+    <I>Wed Jan 10 23:08:15 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000019.html">[Supertux-commit] r4541 - trunk/supertux/src/video
+</A></li>
+        <LI>Next message: <A HREF="000021.html">[Supertux-commit] r4543 - trunk/supertux/src/badguy
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#20">[ date ]</a>
+              <a href="thread.html#20">[ thread ]</a>
+              <a href="subject.html#20">[ subject ]</a>
+              <a href="author.html#20">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: sommer
+Date: 2007-01-10 23:08:15 +0100 (Wed, 10 Jan 2007)
+New Revision: 4542
+
+Added:
+   trunk/supertux/CMakeLists.txt
+   trunk/supertux/mk/cmake/
+   trunk/supertux/mk/cmake/FindICONV.cmake
+   trunk/supertux/mk/cmake/FindOggVorbis.cmake
+   trunk/supertux/src/squirrel/CMakeLists.txt
+Log:
+Added skeleton build scripts for use with cmake. Note that this is far from finished - only the actual compilation works.
+
+
+Added: trunk/supertux/CMakeLists.txt
+===================================================================
+--- trunk/supertux/CMakeLists.txt	2007-01-10 18:34:33 UTC (rev 4541)
++++ trunk/supertux/CMakeLists.txt	2007-01-10 22:08:15 UTC (rev 4542)
+@@ -0,0 +1,140 @@
++#
++# SuperTux - root build script
++# Copyright (C) 2006 Christoph Sommer &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/supertux-commit">christoph.sommer at 2006.expires.deltadevelopment.de</A>&gt;
++#
++# This program is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 2 of the License, or
++# (at your option) any later version.
++# 
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# 
++# You should have received a copy of the GNU General Public License
++# along with this program; if not, write to the Free Software
++# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++#
++
++
++#
++# INSTRUCTIONS:
++# -------------
++#
++# Create a directory build/ and change to it. Run
++#
++#   cmake ..
++#
++# This creates a set of Makefiles to build the project. Run
++#
++#   make
++#
++
++
++#
++# FIXME: create config.h from config.h.in
++# FIXME: compile miniswig
++# FIXME: use miniswig to create squirrel wrappers
++# FIXME: create messages.pot for levels
++# FIXME: provide working install target
++#
++
++
++## (Optional) Generate noisy Makefile
++
++#SET(CMAKE_VERBOSE_MAKEFILE on)
++
++## Project name to use as command prefix
++
++PROJECT(SUPERTUX)
++
++## Search here for additional cmake modules (for finding deps)
++
++set(CMAKE_MODULE_PATH ${SUPERTUX_SOURCE_DIR}/mk/cmake ${CMAKE_MODULE_PATH})
++
++## Add lots of dependencies to compiler switches
++
++FIND_PACKAGE(SDL REQUIRED)
++INCLUDE_DIRECTORIES(${SDL_INCLUDE_DIR})
++LINK_LIBRARIES(${SDL_LIBRARY})
++
++FIND_PACKAGE(SDL_image REQUIRED)
++INCLUDE_DIRECTORIES(${SDLIMAGE_INCLUDE_DIR})
++LINK_LIBRARIES(${SDLIMAGE_LIBRARY})
++
++FIND_PACKAGE(OpenGL REQUIRED)
++INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR})
++LINK_LIBRARIES(${OPENGL_LIBRARY})
++
++FIND_PACKAGE(OpenAL REQUIRED)
++INCLUDE_DIRECTORIES(${OPENAL_INCLUDE_DIR})
++LINK_LIBRARIES(${OPENAL_LIBRARY})
++
++FIND_PACKAGE(OggVorbis REQUIRED)
++INCLUDE_DIRECTORIES(${OGGVORBIS_INCLUDE_DIR})
++LINK_LIBRARIES(${OGGVORBIS_LIBRARIES})
++
++FIND_PACKAGE(PhysFS REQUIRED)
++INCLUDE_DIRECTORIES(${PHYSFS_INCLUDE_DIR})
++LINK_LIBRARIES(${PHYSFS_LIBRARY})
++
++## Also execute instructions in src/squirrel/CMakeLists.txt
++
++ADD_SUBDIRECTORY(src/squirrel)
++
++## Add squirrel lib dir to search path
++
++LINK_DIRECTORIES(src/squirrel)
++
++## Some additional include paths
++
++include_directories (${SUPERTUX_SOURCE_DIR}/)
++include_directories (${SUPERTUX_SOURCE_DIR}/src/)
++include_directories (${SUPERTUX_SOURCE_DIR}/src/squirrel/include/)
++
++## Build list of sources for supertux binary
++
++FILE(GLOB SUPERTUX_SOURCES RELATIVE ${SUPERTUX_SOURCE_DIR} src/*.cpp src/audio/*.cpp src/badguy/*.cpp src/binreloc/*.cpp src/control/*.cpp src/gui/*.cpp src/lisp/*.cpp src/math/*.cpp src/object/*.cpp src/physfs/*.cpp src/sprite/*.cpp src/tinygettext/*.cpp src/trigger/*.cpp src/video/*.cpp src/worldmap/*.cpp src/scripting/*.cpp)
++
++## If xgettext is available, generate messages.pot for sources
++
++FIND_PROGRAM(
++  XGETTEXT 
++  NAMES &quot;xgettext&quot;
++  PATHS &quot;/usr/bin&quot;
++)
++IF(${XGETTEXT} STREQUAL &quot;XGETTEXT-NOTFOUND&quot;)
++  MESSAGE(STATUS &quot;Warning: xgettext not found - will not update messages.pot&quot;)
++ELSE(${XGETTEXT} STREQUAL &quot;XGETTEXT-NOTFOUND&quot;)
++  MESSAGE(STATUS &quot;Found xgettext: ${XGETTEXT}&quot;)
++  SET(MESSAGES_POT_FILE ${SUPERTUX_SOURCE_DIR}/data/locale/messages.pot)
++  ADD_CUSTOM_TARGET(
++    supertux-messages.pot ALL 
++    COMMAND &quot;/usr/bin/xgettext&quot; -k_ -C -o ${MESSAGES_POT_FILE} ${SUPERTUX_SOURCES}
++    DEPENDS ${SUPERTUX_SOURCES}
++    WORKING_DIRECTORY ${SUPERTUX_SOURCE_DIR}
++  )
++ENDIF(${XGETTEXT} STREQUAL &quot;XGETTEXT-NOTFOUND&quot;)
++
++## Some additional compiler switches
++
++ADD_DEFINITIONS(-O2 -fno-strict-aliasing)
++
++## Add target for supertux binary
++
++ADD_EXECUTABLE(supertux ${SUPERTUX_SOURCES} )
++
++## Link supertux binary with squirrel
++
++TARGET_LINK_LIBRARIES(supertux squirrel)
++
++## After building, copy binary to source root
++
++ADD_CUSTOM_COMMAND(
++  TARGET supertux
++  POST_BUILD
++  COMMAND ${CMAKE_COMMAND}
++  ARGS -E copy supertux ${SUPERTUX_SOURCE_DIR}/supertux
++)
++
+
+Added: trunk/supertux/mk/cmake/FindICONV.cmake
+===================================================================
+--- trunk/supertux/mk/cmake/FindICONV.cmake	2007-01-10 18:34:33 UTC (rev 4541)
++++ trunk/supertux/mk/cmake/FindICONV.cmake	2007-01-10 22:08:15 UTC (rev 4542)
+@@ -0,0 +1,94 @@
++#
++#  Copyright (c) 2006, Peter K&#252;mmel, 
++#
++#  Redistribution and use in source and binary forms, with or without
++#  modification, are permitted provided that the following conditions
++#  are met:
++#  
++#  1. Redistributions of source code must retain the copyright
++#     notice, this list of conditions and the following disclaimer.
++#  2. Redistributions in binary form must reproduce the copyright
++#     notice, this list of conditions and the following disclaimer in the
++#     documentation and/or other materials provided with the distribution.
++#  3. The name of the author may not be used to endorse or promote products 
++#     derived from this software without specific prior written permission.
++#  
++#  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
++#  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
++#  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
++#  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
++#  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
++#  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
++#  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
++#  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
++#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
++#  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++#  
++
++if (ICONV_INCLUDE_DIR)
++  # Already in cache, be silent
++  set(ICONV_FIND_QUIETLY TRUE)
++endif (ICONV_INCLUDE_DIR)
++
++FIND_PATH(ICONV_INCLUDE_DIR iconv.h
++ /usr/include
++ /usr/local/include
++)
++
++set(POTENTIAL_ICONV_LIBS iconv libiconv libiconv2)
++FIND_LIBRARY(ICONV_LIBRARY NAMES ${POTENTIAL_ICONV_LIBS}
++PATHS
++ /usr/lib
++ /usr/local/lib
++)
++
++if(WIN32)
++	set(ICONV_DLL_NAMES iconv.dll  libiconv.dll libiconv2.dll)
++	FIND_FILE(ICONV_DLL   
++					NAMES ${ICONV_DLL_NAMES}
++					PATHS ENV PATH
++					NO_DEFAULT_PATH)
++	FIND_FILE(ICONV_DLL_HELP   
++					NAMES ${ICONV_DLL_NAMES}
++					PATHS ENV PATH
++					${ICONV_INCLUDE_DIR}/../bin)
++	IF(ICONV_FIND_REQUIRED)
++		IF(NOT ICONV_DLL AND NOT ICONV_DLL_HELP)
++			MESSAGE(FATAL_ERROR &quot;Could not find iconv.dll, please add correct your PATH environment variable&quot;)
++		ENDIF(NOT ICONV_DLL AND NOT ICONV_DLL_HELP)
++		IF(NOT ICONV_DLL AND ICONV_DLL_HELP)
++			GET_FILENAME_COMPONENT(ICONV_DLL_HELP ${ICONV_DLL_HELP} PATH)
++			MESSAGE(STATUS)
++			MESSAGE(STATUS &quot;Could not find iconv.dll in standard search path, please add &quot;)
++			MESSAGE(STATUS &quot;${ICONV_DLL_HELP}&quot;)
++			MESSAGE(STATUS &quot;to your PATH environment variable.&quot;)
++			MESSAGE(STATUS)
++			MESSAGE(FATAL_ERROR &quot;exit cmake&quot;)
++		ENDIF(NOT ICONV_DLL AND ICONV_DLL_HELP)
++	ENDIF(ICONV_FIND_REQUIRED)
++ELSE(WIN32)
++	set(ICONV_DLL TRUE)
++endif(WIN32)
++
++
++IF (ICONV_INCLUDE_DIR AND ICONV_LIBRARY AND ICONV_DLL)
++   SET(ICONV_FOUND TRUE)
++ENDIF (ICONV_INCLUDE_DIR AND ICONV_LIBRARY AND ICONV_DLL)
++
++IF (ICONV_FOUND)
++   IF (NOT ICONV_FIND_QUIETLY)
++      MESSAGE(STATUS &quot;Found iconv library: ${ICONV_LIBRARY}&quot;)
++      #MESSAGE(STATUS &quot;Found iconv   dll  : ${ICONV_DLL}&quot;)
++   ENDIF (NOT ICONV_FIND_QUIETLY)
++ELSE (ICONV_FOUND)
++   IF (ICONV_FIND_REQUIRED)
++      MESSAGE(STATUS &quot;Looked for iconv library named ${POTENTIAL_ICONV_LIBS}.&quot;)
++      MESSAGE(STATUS &quot;Found no acceptable iconv library. This is fatal.&quot;)
++      MESSAGE(STATUS &quot;iconv header: ${ICONV_INCLUDE_DIR}&quot;)
++      MESSAGE(STATUS &quot;iconv lib   : ${ICONV_LIBRARY}&quot;)
++      MESSAGE(FATAL_ERROR &quot;Could NOT find iconv library&quot;)
++   ENDIF (ICONV_FIND_REQUIRED)
++ENDIF (ICONV_FOUND)
++
++MARK_AS_ADVANCED(ICONV_LIBRARY ICONV_INCLUDE_DIR)
++
+
+Added: trunk/supertux/mk/cmake/FindOggVorbis.cmake
+===================================================================
+--- trunk/supertux/mk/cmake/FindOggVorbis.cmake	2007-01-10 18:34:33 UTC (rev 4541)
++++ trunk/supertux/mk/cmake/FindOggVorbis.cmake	2007-01-10 22:08:15 UTC (rev 4542)
+@@ -0,0 +1,70 @@
++# - Try to find the OggVorbis libraries
++# Once done this will define
++#
++#  OGGVORBIS_FOUND - system has OggVorbis
++#  OGGVORBIS_VERSION - set either to 1 or 2
++#  OGGVORBIS_INCLUDE_DIR - the OggVorbis include directory
++#  OGGVORBIS_LIBRARIES - The libraries needed to use OggVorbis
++#  OGG_LIBRARY         - The Ogg library
++#  VORBIS_LIBRARY      - The Vorbis library
++#  VORBISFILE_LIBRARY  - The VorbisFile library
++#  VORBISENC_LIBRARY   - The VorbisEnc library
++# Copyright (c) 2006, Richard Laerkaeng, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/supertux-commit">richard at goteborg.utfors.se</A>&gt;
++#
++# Redistribution and use is allowed according to the terms of the BSD license.
++# For details see the accompanying COPYING-CMAKE-SCRIPTS file.
++include (CheckLibraryExists)
++find_path(VORBIS_INCLUDE_DIR vorbis/vorbisfile.h)
++find_library(OGG_LIBRARY NAMES ogg)
++find_library(VORBIS_LIBRARY NAMES vorbis)
++find_library(VORBISFILE_LIBRARY NAMES vorbisfile)
++find_library(VORBISENC_LIBRARY NAMES vorbisenc)
++if (VORBIS_INCLUDE_DIR AND VORBIS_LIBRARY AND VORBISFILE_LIBRARY AND VORBISENC_LIBRARY)
++   set(OGGVORBIS_FOUND TRUE)
++   set(OGGVORBIS_LIBRARIES ${OGG_LIBRARY} ${VORBIS_LIBRARY} ${VORBISFILE_LIBRARY} ${VORBISENC_LIBRARY})
++   set(_CMAKE_REQUIRED_LIBRARIES_TMP ${CMAKE_REQUIRED_LIBRARIES})
++   set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${OGGVORBIS_LIBRARIES})
++   check_library_exists(vorbis vorbis_bitrate_addblock &quot;&quot; HAVE_LIBVORBISENC2)
++   set(CMAKE_REQUIRED_LIBRARIES ${_CMAKE_REQUIRED_LIBRARIES_TMP})
++   if (HAVE_LIBVORBISENC2)
++      set (OGGVORBIS_VERSION 2)
++   else (HAVE_LIBVORBISENC2)
++      set (OGGVORBIS_VERSION 1)
++   endif (HAVE_LIBVORBISENC2)
++else (VORBIS_INCLUDE_DIR AND VORBIS_LIBRARY AND VORBISFILE_LIBRARY AND VORBISENC_LIBRARY)
++   set (OGGVORBIS_VERSION)
++   set(OGGVORBIS_FOUND FALSE)
++endif (VORBIS_INCLUDE_DIR AND VORBIS_LIBRARY AND VORBISFILE_LIBRARY AND VORBISENC_LIBRARY)
++if (OGGVORBIS_FOUND)
++   if (NOT OggVorbis_FIND_QUIETLY)
++      message(STATUS &quot;Found OggVorbis: ${OGGVORBIS_LIBRARIES}&quot;)
++   endif (NOT OggVorbis_FIND_QUIETLY)
++else (OGGVORBIS_FOUND)
++   if (OggVorbis_FIND_REQUIRED)
++      message(FATAL_ERROR &quot;Could NOT find OggVorbis libraries&quot;)
++   endif (OggVorbis_FIND_REQUIRED)
++   if (NOT OggVorbis_FIND_QUITELY)
++      message(STATUS &quot;Could NOT find OggVorbis libraries&quot;)
++   endif (NOT OggVorbis_FIND_QUITELY)
++endif (OGGVORBIS_FOUND)
++#check_include_files(vorbis/vorbisfile.h HAVE_VORBISFILE_H)
++#check_library_exists(ogg ogg_page_version &quot;&quot; HAVE_LIBOGG)
++#check_library_exists(vorbis vorbis_info_init &quot;&quot; HAVE_LIBVORBIS)
++#check_library_exists(vorbisfile ov_open &quot;&quot; HAVE_LIBVORBISFILE)
++#check_library_exists(vorbisenc vorbis_info_clear &quot;&quot; HAVE_LIBVORBISENC)
++#check_library_exists(vorbis vorbis_bitrate_addblock &quot;&quot; HAVE_LIBVORBISENC2)
++#if (HAVE_LIBOGG AND HAVE_VORBISFILE_H AND HAVE_LIBVORBIS AND HAVE_LIBVORBISFILE AND HAVE_LIBVORBISENC)
++#    message(STATUS &quot;Ogg/Vorbis found&quot;)
++#    set (VORBIS_LIBS &quot;-lvorbis -logg&quot;)
++#    set (VORBISFILE_LIBS &quot;-lvorbisfile&quot;)
++#    set (VORBISENC_LIBS &quot;-lvorbisenc&quot;)
++#    set (OGGVORBIS_FOUND TRUE)
++#    if (HAVE_LIBVORBISENC2)
++#        set (HAVE_VORBIS 2)
++#    else (HAVE_LIBVORBISENC2)
++#        set (HAVE_VORBIS 1)
++#    endif (HAVE_LIBVORBISENC2)
++#else (HAVE_LIBOGG AND HAVE_VORBISFILE_H AND HAVE_LIBVORBIS AND HAVE_LIBVORBISFILE AND HAVE_LIBVORBISENC)
++#    message(STATUS &quot;Ogg/Vorbis not found&quot;)
++#endif (HAVE_LIBOGG AND HAVE_VORBISFILE_H AND HAVE_LIBVORBIS AND HAVE_LIBVORBISFILE AND HAVE_LIBVORBISENC)
++
+
+Added: trunk/supertux/src/squirrel/CMakeLists.txt
+===================================================================
+--- trunk/supertux/src/squirrel/CMakeLists.txt	2007-01-10 18:34:33 UTC (rev 4541)
++++ trunk/supertux/src/squirrel/CMakeLists.txt	2007-01-10 22:08:15 UTC (rev 4542)
+@@ -0,0 +1,35 @@
++#
++# SuperTux - squirrel library build script
++# Copyright (C) 2006 Christoph Sommer &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/supertux-commit">christoph.sommer at 2006.expires.deltadevelopment.de</A>&gt;
++#
++# This program is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 2 of the License, or
++# (at your option) any later version.
++# 
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# 
++# You should have received a copy of the GNU General Public License
++# along with this program; if not, write to the Free Software
++# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++#
++
++## Add include/ to include directories
++
++INCLUDE_DIRECTORIES(${SUPERTUX_SOURCE_DIR}/src/squirrel/include/)
++
++## build list of source files
++
++FILE(GLOB SQUIRREL_SOURCES squirrel/*.cpp sqstdlib/*.cpp sqstdlib/*.c)
++
++## add additional compiler switches
++
++ADD_DEFINITIONS(-include ${SUPERTUX_SOURCE_DIR}/config.h)
++
++## define a target for building the library
++
++ADD_LIBRARY(squirrel ${SQUIRREL_SOURCES})
++
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000019.html">[Supertux-commit] r4541 - trunk/supertux/src/video
+</A></li>
+	<LI>Next message: <A HREF="000021.html">[Supertux-commit] r4543 - trunk/supertux/src/badguy
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#20">[ date ]</a>
+              <a href="thread.html#20">[ thread ]</a>
+              <a href="subject.html#20">[ subject ]</a>
+              <a href="author.html#20">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/supertux-commit">More information about the Supertux-commit
+mailing list</a><br>
+</body></html>

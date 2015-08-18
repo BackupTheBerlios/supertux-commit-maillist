@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Supertux-commit] r4534 - in trunk/supertux/src: . lisp
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/supertux-commit/2007-January/index.html" >
+   <LINK REL="made" HREF="mailto:supertux-commit%40lists.berlios.de?Subject=Re%3A%20%5BSupertux-commit%5D%20r4534%20-%20in%20trunk/supertux/src%3A%20.%20lisp&In-Reply-To=%3C200701082113.l08LDI2E012549%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000011.html">
+   <LINK REL="Next"  HREF="000013.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Supertux-commit] r4534 - in trunk/supertux/src: . lisp</H1>
+    <B>sommer at BerliOS</B> 
+    <A HREF="mailto:supertux-commit%40lists.berlios.de?Subject=Re%3A%20%5BSupertux-commit%5D%20r4534%20-%20in%20trunk/supertux/src%3A%20.%20lisp&In-Reply-To=%3C200701082113.l08LDI2E012549%40sheep.berlios.de%3E"
+       TITLE="[Supertux-commit] r4534 - in trunk/supertux/src: . lisp">sommer at mail.berlios.de
+       </A><BR>
+    <I>Mon Jan  8 22:13:18 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000011.html">[Supertux-commit] r4533 - trunk/supertux/src/object
+</A></li>
+        <LI>Next message: <A HREF="000013.html">[Supertux-commit] r4535 - in trunk/supertux: data/levels/world1 src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#12">[ date ]</a>
+              <a href="thread.html#12">[ thread ]</a>
+              <a href="subject.html#12">[ subject ]</a>
+              <a href="author.html#12">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: sommer
+Date: 2007-01-08 22:13:17 +0100 (Mon, 08 Jan 2007)
+New Revision: 4534
+
+Modified:
+   trunk/supertux/src/lisp/parser.cpp
+   trunk/supertux/src/world.cpp
+Log:
+Enable loading levels from .zip files in config dir, e.g. from ~/.supertux2/foo.zip/levels/01.stl
+
+
+Modified: trunk/supertux/src/lisp/parser.cpp
+===================================================================
+--- trunk/supertux/src/lisp/parser.cpp	2007-01-08 18:18:41 UTC (rev 4533)
++++ trunk/supertux/src/lisp/parser.cpp	2007-01-08 21:13:17 UTC (rev 4534)
+@@ -60,7 +60,9 @@
+ Lisp*
+ Parser::parse(const std::string&amp; filename)
+ {
+-  IFileStream in(filename);
++  IFileStreambuf ins(filename);
++  std::istream in(&amp;ins);
++
+   if(!in.good()) {
+     std::stringstream msg;
+     msg &lt;&lt; &quot;Parser problem: Couldn't open file '&quot; &lt;&lt; filename &lt;&lt; &quot;'.&quot;;
+
+Modified: trunk/supertux/src/world.cpp
+===================================================================
+--- trunk/supertux/src/world.cpp	2007-01-08 18:18:41 UTC (rev 4533)
++++ trunk/supertux/src/world.cpp	2007-01-08 21:13:17 UTC (rev 4534)
+@@ -106,7 +106,7 @@
+   // Level info file doesn't define any levels, so read the
+   // directory to see what we can find
+ 
+-  std::string path = basedir + &quot;/&quot;;
++  std::string path = basedir;
+   char** files = PHYSFS_enumerateFiles(path.c_str());
+   if(!files) {
+     log_warning &lt;&lt; &quot;Couldn't read subset dir '&quot; &lt;&lt; path &lt;&lt; &quot;'&quot; &lt;&lt; std::endl;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000011.html">[Supertux-commit] r4533 - trunk/supertux/src/object
+</A></li>
+	<LI>Next message: <A HREF="000013.html">[Supertux-commit] r4535 - in trunk/supertux: data/levels/world1 src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#12">[ date ]</a>
+              <a href="thread.html#12">[ thread ]</a>
+              <a href="subject.html#12">[ subject ]</a>
+              <a href="author.html#12">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/supertux-commit">More information about the Supertux-commit
+mailing list</a><br>
+</body></html>

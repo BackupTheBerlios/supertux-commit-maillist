@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Supertux-commit] r4533 - trunk/supertux/src/object
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/supertux-commit/2007-January/index.html" >
+   <LINK REL="made" HREF="mailto:supertux-commit%40lists.berlios.de?Subject=Re%3A%20%5BSupertux-commit%5D%20r4533%20-%20trunk/supertux/src/object&In-Reply-To=%3C200701081818.l08IIgbL026428%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000010.html">
+   <LINK REL="Next"  HREF="000012.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Supertux-commit] r4533 - trunk/supertux/src/object</H1>
+    <B>sommer at BerliOS</B> 
+    <A HREF="mailto:supertux-commit%40lists.berlios.de?Subject=Re%3A%20%5BSupertux-commit%5D%20r4533%20-%20trunk/supertux/src/object&In-Reply-To=%3C200701081818.l08IIgbL026428%40sheep.berlios.de%3E"
+       TITLE="[Supertux-commit] r4533 - trunk/supertux/src/object">sommer at mail.berlios.de
+       </A><BR>
+    <I>Mon Jan  8 19:18:42 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000010.html">[Supertux-commit] r4532 - trunk/supertux/src/object
+</A></li>
+        <LI>Next message: <A HREF="000012.html">[Supertux-commit] r4534 - in trunk/supertux/src: . lisp
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#11">[ date ]</a>
+              <a href="thread.html#11">[ thread ]</a>
+              <a href="subject.html#11">[ subject ]</a>
+              <a href="author.html#11">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: sommer
+Date: 2007-01-08 19:18:41 +0100 (Mon, 08 Jan 2007)
+New Revision: 4533
+
+Modified:
+   trunk/supertux/src/object/player.cpp
+Log:
+Merged Patch #1811
+
+
+Modified: trunk/supertux/src/object/player.cpp
+===================================================================
+--- trunk/supertux/src/object/player.cpp	2007-01-07 19:28:14 UTC (rev 4532)
++++ trunk/supertux/src/object/player.cpp	2007-01-08 18:18:41 UTC (rev 4533)
+@@ -1051,17 +1051,22 @@
+ 
+   physic.set_velocity_x(0);
+ 
+-  if(!completely &amp;&amp; is_big()) {
++  if(!completely &amp;&amp; (is_big() || growing_timer.started())) {
+     if(player_status-&gt;bonus == FIRE_BONUS
+         || player_status-&gt;bonus == ICE_BONUS) {
+       safe_timer.start(TUX_SAFE_TIME);
+       set_bonus(GROWUP_BONUS, true);
+-    } else {
++    } else if(player_status-&gt;bonus == GROWUP_BONUS) {
+       //growing_timer.start(GROWING_TIME);
+       safe_timer.start(TUX_SAFE_TIME /* + GROWING_TIME */);
+       adjust_height(30.8);
+       duck = false;
+       set_bonus(NO_BONUS, true);
++    } else if(player_status-&gt;bonus == NO_BONUS) {
++      growing_timer.stop();
++      safe_timer.start(TUX_SAFE_TIME);
++      adjust_height(30.8);
++      duck = false;
+     }
+   } else {
+     for (int i = 0; (i &lt; 5) &amp;&amp; (i &lt; player_status-&gt;coins); i++)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000010.html">[Supertux-commit] r4532 - trunk/supertux/src/object
+</A></li>
+	<LI>Next message: <A HREF="000012.html">[Supertux-commit] r4534 - in trunk/supertux/src: . lisp
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#11">[ date ]</a>
+              <a href="thread.html#11">[ thread ]</a>
+              <a href="subject.html#11">[ subject ]</a>
+              <a href="author.html#11">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/supertux-commit">More information about the Supertux-commit
+mailing list</a><br>
+</body></html>

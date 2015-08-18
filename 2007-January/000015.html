@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Supertux-commit] r4537 - trunk/supertux/src/worldmap
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/supertux-commit/2007-January/index.html" >
+   <LINK REL="made" HREF="mailto:supertux-commit%40lists.berlios.de?Subject=Re%3A%20%5BSupertux-commit%5D%20r4537%20-%20trunk/supertux/src/worldmap&In-Reply-To=%3C200701082214.l08MEBBv021249%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000014.html">
+   <LINK REL="Next"  HREF="000016.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Supertux-commit] r4537 - trunk/supertux/src/worldmap</H1>
+    <B>sommer at BerliOS</B> 
+    <A HREF="mailto:supertux-commit%40lists.berlios.de?Subject=Re%3A%20%5BSupertux-commit%5D%20r4537%20-%20trunk/supertux/src/worldmap&In-Reply-To=%3C200701082214.l08MEBBv021249%40sheep.berlios.de%3E"
+       TITLE="[Supertux-commit] r4537 - trunk/supertux/src/worldmap">sommer at mail.berlios.de
+       </A><BR>
+    <I>Mon Jan  8 23:14:11 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000014.html">[Supertux-commit] r4536 - in trunk/supertux/src: . object
+</A></li>
+        <LI>Next message: <A HREF="000016.html">[Supertux-commit] r4538 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#15">[ date ]</a>
+              <a href="thread.html#15">[ thread ]</a>
+              <a href="subject.html#15">[ subject ]</a>
+              <a href="author.html#15">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: sommer
+Date: 2007-01-08 23:14:11 +0100 (Mon, 08 Jan 2007)
+New Revision: 4537
+
+Modified:
+   trunk/supertux/src/worldmap/worldmap.cpp
+Log:
+Aborting a level no longer resets Tux to the last finished level: Engine now updates state and savegame when entering levels.
+
+
+Modified: trunk/supertux/src/worldmap/worldmap.cpp
+===================================================================
+--- trunk/supertux/src/worldmap/worldmap.cpp	2007-01-08 21:56:21 UTC (rev 4536)
++++ trunk/supertux/src/worldmap/worldmap.cpp	2007-01-08 22:14:11 UTC (rev 4537)
+@@ -431,8 +431,6 @@
+   calculate_total_stats();
+ 
+   save_state();
+-  if(World::current() != NULL)
+-    World::current()-&gt;save_state();
+ 
+   if (old_level_state != level-&gt;solved &amp;&amp; level-&gt;auto_path) {
+     // Try to detect the next direction to which we should walk
+@@ -581,6 +579,10 @@
+             Vector shrinkpos = Vector(level-&gt;pos.x*32 + 16 - camera_offset.x,
+                                       level-&gt;pos.y*32 + 16 - camera_offset.y);
+             std::string levelfile = levels_path + level-&gt;get_name();
++
++            // update state and savegame
++            save_state();
++
+             main_loop-&gt;push_screen(new GameSession(levelfile, &amp;level-&gt;statistics),
+                                    new ShrinkFade(shrinkpos, 0.5));
+             in_level = true;
+@@ -954,6 +956,9 @@
+   }
+ 
+   sq_settop(vm, oldtop);
++  
++  if(World::current() != NULL)
++    World::current()-&gt;save_state();
+ }
+ 
+ void
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000014.html">[Supertux-commit] r4536 - in trunk/supertux/src: . object
+</A></li>
+	<LI>Next message: <A HREF="000016.html">[Supertux-commit] r4538 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#15">[ date ]</a>
+              <a href="thread.html#15">[ thread ]</a>
+              <a href="subject.html#15">[ subject ]</a>
+              <a href="author.html#15">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/supertux-commit">More information about the Supertux-commit
+mailing list</a><br>
+</body></html>

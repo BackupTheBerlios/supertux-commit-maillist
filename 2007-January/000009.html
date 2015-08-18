@@ -1,0 +1,469 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Supertux-commit] r4530 - in trunk/supertux/src: . badguy object
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/supertux-commit/2007-January/index.html" >
+   <LINK REL="made" HREF="mailto:supertux-commit%40lists.berlios.de?Subject=Re%3A%20%5BSupertux-commit%5D%20r4530%20-%20in%20trunk/supertux/src%3A%20.%20badguy%20object&In-Reply-To=%3C200701051543.l05FhKDP018367%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000008.html">
+   <LINK REL="Next"  HREF="000010.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Supertux-commit] r4530 - in trunk/supertux/src: . badguy object</H1>
+    <B>sommer at BerliOS</B> 
+    <A HREF="mailto:supertux-commit%40lists.berlios.de?Subject=Re%3A%20%5BSupertux-commit%5D%20r4530%20-%20in%20trunk/supertux/src%3A%20.%20badguy%20object&In-Reply-To=%3C200701051543.l05FhKDP018367%40sheep.berlios.de%3E"
+       TITLE="[Supertux-commit] r4530 - in trunk/supertux/src: . badguy object">sommer at mail.berlios.de
+       </A><BR>
+    <I>Fri Jan  5 16:43:20 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000008.html">[Supertux-commit] r4529 - in trunk/supertux: data/levels/test	man/man6 src/object
+</A></li>
+        <LI>Next message: <A HREF="000010.html">[Supertux-commit] r4532 - trunk/supertux/src/object
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#9">[ date ]</a>
+              <a href="thread.html#9">[ thread ]</a>
+              <a href="subject.html#9">[ subject ]</a>
+              <a href="author.html#9">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: sommer
+Date: 2007-01-05 16:43:18 +0100 (Fri, 05 Jan 2007)
+New Revision: 4530
+
+Modified:
+   trunk/supertux/src/badguy/badguy.hpp
+   trunk/supertux/src/object/bullet.hpp
+   trunk/supertux/src/object/falling_coin.hpp
+   trunk/supertux/src/object/flower.hpp
+   trunk/supertux/src/object/gameobjs.hpp
+   trunk/supertux/src/object/growup.hpp
+   trunk/supertux/src/object/oneup.hpp
+   trunk/supertux/src/object/player.hpp
+   trunk/supertux/src/object/powerup.hpp
+   trunk/supertux/src/object/rock.hpp
+   trunk/supertux/src/object/scripted_object.hpp
+   trunk/supertux/src/object/skull_tile.hpp
+   trunk/supertux/src/object/star.hpp
+   trunk/supertux/src/object/trampoline.hpp
+   trunk/supertux/src/object/unstable_tile.hpp
+   trunk/supertux/src/object/weak_block.hpp
+   trunk/supertux/src/physic.hpp
+   trunk/supertux/src/sector.cpp
+Log:
+Merged gravity patch by T. Goya
+
+
+Modified: trunk/supertux/src/badguy/badguy.hpp
+===================================================================
+--- trunk/supertux/src/badguy/badguy.hpp	2007-01-04 23:37:27 UTC (rev 4529)
++++ trunk/supertux/src/badguy/badguy.hpp	2007-01-05 15:43:18 UTC (rev 4530)
+@@ -38,7 +38,7 @@
+ #include &quot;audio/sound_manager.hpp&quot;
+ #include &quot;audio/sound_source.hpp&quot;
+ 
+-class BadGuy : public MovingSprite, public Serializable
++class BadGuy : public MovingSprite, protected UsesPhysic, public Serializable
+ {
+ public:
+   BadGuy(const Vector&amp; pos, const std::string&amp; sprite_name, int layer = LAYER_OBJECTS);
+@@ -175,8 +175,6 @@
+    */
+   Player* get_nearest_player();
+ 
+-  Physic physic;
+-
+   /// is the enemy activated
+   bool activated;
+   /**
+
+Modified: trunk/supertux/src/object/bullet.hpp
+===================================================================
+--- trunk/supertux/src/object/bullet.hpp	2007-01-04 23:37:27 UTC (rev 4529)
++++ trunk/supertux/src/object/bullet.hpp	2007-01-05 15:43:18 UTC (rev 4530)
+@@ -25,7 +25,7 @@
+ #include &quot;sprite/sprite.hpp&quot;
+ #include &quot;player_status.hpp&quot;
+ 
+-class Bullet : public MovingObject
++class Bullet : public MovingObject, private UsesPhysic
+ {
+ public:
+   Bullet(const Vector&amp; pos, float xm, int dir, BonusType type);
+@@ -50,7 +50,6 @@
+ 
+ private:
+   int life_count;
+-  Physic physic;
+   std::auto_ptr&lt;Sprite&gt; sprite;
+   BonusType type;
+ };
+
+Modified: trunk/supertux/src/object/falling_coin.hpp
+===================================================================
+--- trunk/supertux/src/object/falling_coin.hpp	2007-01-04 23:37:27 UTC (rev 4529)
++++ trunk/supertux/src/object/falling_coin.hpp	2007-01-05 15:43:18 UTC (rev 4530)
+@@ -26,7 +26,7 @@
+ #include &quot;video/drawing_context.hpp&quot;
+ #include &quot;physic.hpp&quot;
+ 
+-class FallingCoin : public GameObject
++class FallingCoin : public GameObject, private UsesPhysic
+ {
+ public:
+   FallingCoin(const Vector&amp; start_position, const int x_vel);
+@@ -37,7 +37,6 @@
+ private:
+   Vector  pos;
+   Sprite* sprite;
+-  Physic  physic;
+ };
+ 
+ #endif
+
+Modified: trunk/supertux/src/object/flower.hpp
+===================================================================
+--- trunk/supertux/src/object/flower.hpp	2007-01-04 23:37:27 UTC (rev 4529)
++++ trunk/supertux/src/object/flower.hpp	2007-01-05 15:43:18 UTC (rev 4530)
+@@ -22,7 +22,6 @@
+ 
+ #include &quot;moving_object.hpp&quot;
+ #include &quot;sprite/sprite.hpp&quot;
+-#include &quot;physic.hpp&quot;
+ #include &quot;player_status.hpp&quot;
+ 
+ class Flower : public MovingObject
+
+Modified: trunk/supertux/src/object/gameobjs.hpp
+===================================================================
+--- trunk/supertux/src/object/gameobjs.hpp	2007-01-04 23:37:27 UTC (rev 4529)
++++ trunk/supertux/src/object/gameobjs.hpp	2007-01-05 15:43:18 UTC (rev 4530)
+@@ -22,7 +22,6 @@
+ 
+ #include &quot;video/surface.hpp&quot;
+ #include &quot;timer.hpp&quot;
+-#include &quot;physic.hpp&quot;
+ #include &quot;game_object.hpp&quot;
+ #include &quot;moving_object.hpp&quot;
+ #include &quot;serializable.hpp&quot;
+
+Modified: trunk/supertux/src/object/growup.hpp
+===================================================================
+--- trunk/supertux/src/object/growup.hpp	2007-01-04 23:37:27 UTC (rev 4529)
++++ trunk/supertux/src/object/growup.hpp	2007-01-05 15:43:18 UTC (rev 4530)
+@@ -24,7 +24,7 @@
+ #include &quot;physic.hpp&quot;
+ #include &quot;direction.hpp&quot;
+ 
+-class GrowUp : public MovingSprite
++class GrowUp : public MovingSprite, private UsesPhysic
+ {
+ public:
+   GrowUp(Direction direction = RIGHT);
+@@ -33,9 +33,6 @@
+   virtual void update(float elapsed_time);
+   virtual void collision_solid(const CollisionHit&amp; hit);
+   virtual HitResponse collision(GameObject&amp; other, const CollisionHit&amp; hit);
+-
+-private:
+-  Physic physic;
+ };
+ 
+ #endif
+
+Modified: trunk/supertux/src/object/oneup.hpp
+===================================================================
+--- trunk/supertux/src/object/oneup.hpp	2007-01-04 23:37:27 UTC (rev 4529)
++++ trunk/supertux/src/object/oneup.hpp	2007-01-05 15:43:18 UTC (rev 4530)
+@@ -24,7 +24,7 @@
+ #include &quot;physic.hpp&quot;
+ #include &quot;direction.hpp&quot;
+ 
+-class OneUp : public MovingSprite
++class OneUp : public MovingSprite, private UsesPhysic
+ {
+ public:
+   OneUp(const Vector&amp; pos, Direction direction = RIGHT);
+@@ -32,9 +32,6 @@
+ 
+   virtual void update(float elapsed_time);
+   virtual HitResponse collision(GameObject&amp; other, const CollisionHit&amp; hit);
+-
+-private:
+-  Physic physic;
+ };
+ 
+ #endif
+
+Modified: trunk/supertux/src/object/player.hpp
+===================================================================
+--- trunk/supertux/src/object/player.hpp	2007-01-04 23:37:27 UTC (rev 4529)
++++ trunk/supertux/src/object/player.hpp	2007-01-05 15:43:18 UTC (rev 4530)
+@@ -81,7 +81,7 @@
+ extern TuxBodyParts* fire_tux;
+ extern TuxBodyParts* ice_tux;
+ 
+-class Player : public MovingObject, public Scripting::Player, public ScriptInterface
++class Player : public MovingObject, public UsesPhysic, public Scripting::Player, public ScriptInterface
+ {
+ public:
+   enum FallMode { ON_GROUND, JUMPING, TRAMPOLINE_JUMP, FALLING };
+@@ -119,7 +119,6 @@
+   Timer growing_timer;
+   Timer idle_timer;
+   Timer backflip_timer;
+-  Physic physic;
+ 
+ public:
+   Player(PlayerStatus* player_status, const std::string&amp; name);
+
+Modified: trunk/supertux/src/object/powerup.hpp
+===================================================================
+--- trunk/supertux/src/object/powerup.hpp	2007-01-04 23:37:27 UTC (rev 4529)
++++ trunk/supertux/src/object/powerup.hpp	2007-01-05 15:43:18 UTC (rev 4530)
+@@ -25,7 +25,7 @@
+ #include &quot;collision_hit.hpp&quot;
+ #include &quot;physic.hpp&quot;
+ 
+-class PowerUp : public MovingSprite
++class PowerUp : public MovingSprite, private UsesPhysic
+ {
+ public:
+   PowerUp(const lisp::Lisp&amp; lisp);
+@@ -35,7 +35,6 @@
+   virtual HitResponse collision(GameObject&amp; other, const CollisionHit&amp; hit);
+ 
+ private:
+-  Physic physic;
+   std::string script;
+   bool no_physics;
+ };
+
+Modified: trunk/supertux/src/object/rock.hpp
+===================================================================
+--- trunk/supertux/src/object/rock.hpp	2007-01-04 23:37:27 UTC (rev 4529)
++++ trunk/supertux/src/object/rock.hpp	2007-01-05 15:43:18 UTC (rev 4530)
+@@ -28,7 +28,7 @@
+ 
+ class Sprite;
+ 
+-class Rock : public MovingSprite, public Portable, public Serializable
++class Rock : public MovingSprite, public Portable, protected UsesPhysic, public Serializable
+ {
+ public:
+   Rock(const lisp::Lisp&amp; reader);
+@@ -46,7 +46,6 @@
+ protected:
+   bool on_ground;
+   bool grabbed;
+-  Physic physic;
+   Vector last_movement;
+ };
+ 
+
+Modified: trunk/supertux/src/object/scripted_object.hpp
+===================================================================
+--- trunk/supertux/src/object/scripted_object.hpp	2007-01-04 23:37:27 UTC (rev 4529)
++++ trunk/supertux/src/object/scripted_object.hpp	2007-01-05 15:43:18 UTC (rev 4530)
+@@ -27,8 +27,8 @@
+ #include &quot;script_interface.hpp&quot;
+ #include &quot;scripting/scripted_object.hpp&quot;
+ 
+-class ScriptedObject : public MovingSprite, public Scripting::ScriptedObject,
+-                       public ScriptInterface
++class ScriptedObject : public MovingSprite, public UsesPhysic, 
++                       public Scripting::ScriptedObject, public ScriptInterface
+ {
+ public:
+   ScriptedObject(const lisp::Lisp&amp; lisp);
+@@ -69,7 +69,6 @@
+   bool visible;
+   bool new_vel_set;
+   Vector new_vel;
+-  Physic physic;
+ };
+ 
+ #endif
+
+Modified: trunk/supertux/src/object/skull_tile.hpp
+===================================================================
+--- trunk/supertux/src/object/skull_tile.hpp	2007-01-04 23:37:27 UTC (rev 4529)
++++ trunk/supertux/src/object/skull_tile.hpp	2007-01-05 15:43:18 UTC (rev 4530)
+@@ -28,7 +28,7 @@
+ class Player;
+ 
+ /** A tile that starts falling down if tux stands to long on it */
+-class SkullTile : public MovingSprite
++class SkullTile : public MovingSprite, private UsesPhysic
+ {
+ public:
+   SkullTile(const lisp::Lisp&amp; lisp);
+@@ -39,7 +39,6 @@
+   void draw(DrawingContext&amp; context);
+ 
+ private:
+-  Physic physic;
+   Timer timer;
+   bool hit;
+   bool falling;
+
+Modified: trunk/supertux/src/object/star.hpp
+===================================================================
+--- trunk/supertux/src/object/star.hpp	2007-01-04 23:37:27 UTC (rev 4529)
++++ trunk/supertux/src/object/star.hpp	2007-01-05 15:43:18 UTC (rev 4530)
+@@ -24,7 +24,7 @@
+ #include &quot;physic.hpp&quot;
+ #include &quot;direction.hpp&quot;
+ 
+-class Star : public MovingSprite
++class Star : public MovingSprite, private UsesPhysic
+ {
+ public:
+   Star(const Vector&amp; pos, Direction direction = RIGHT);
+@@ -33,9 +33,6 @@
+   virtual void update(float elapsed_time);
+   virtual void collision_solid(const CollisionHit&amp; hit);
+   virtual HitResponse collision(GameObject&amp; other, const CollisionHit&amp; hit);
+-
+-private:
+-  Physic physic;
+ };
+ 
+ #endif
+
+Modified: trunk/supertux/src/object/trampoline.hpp
+===================================================================
+--- trunk/supertux/src/object/trampoline.hpp	2007-01-04 23:37:27 UTC (rev 4529)
++++ trunk/supertux/src/object/trampoline.hpp	2007-01-05 15:43:18 UTC (rev 4530)
+@@ -23,7 +23,6 @@
+ #include &quot;moving_sprite.hpp&quot;
+ #include &quot;lisp/lisp.hpp&quot;
+ #include &quot;object/rock.hpp&quot;
+-#include &quot;physic.hpp&quot;
+ 
+ /**
+  * Jumping on a trampolin makes tux jump higher.
+
+Modified: trunk/supertux/src/object/unstable_tile.hpp
+===================================================================
+--- trunk/supertux/src/object/unstable_tile.hpp	2007-01-04 23:37:27 UTC (rev 4529)
++++ trunk/supertux/src/object/unstable_tile.hpp	2007-01-05 15:43:18 UTC (rev 4530)
+@@ -29,7 +29,7 @@
+ /**
+  * A block that disintegrates when stood on
+  */
+-class UnstableTile : public MovingSprite
++class UnstableTile : public MovingSprite, public UsesPhysic
+ {
+ public:
+   UnstableTile(const lisp::Lisp&amp; lisp);
+@@ -45,8 +45,6 @@
+     STATE_DISINTEGRATING /**&lt; disintegrating, no longer solid */
+   };
+   State state;
+-
+-  Physic physic;
+ };
+ 
+ #endif
+
+Modified: trunk/supertux/src/object/weak_block.hpp
+===================================================================
+--- trunk/supertux/src/object/weak_block.hpp	2007-01-04 23:37:27 UTC (rev 4529)
++++ trunk/supertux/src/object/weak_block.hpp	2007-01-05 15:43:18 UTC (rev 4530)
+@@ -29,7 +29,7 @@
+ /**
+  * A block that can be destroyed by Bullet hits
+  */
+-class WeakBlock : public MovingSprite
++class WeakBlock : public MovingSprite, public UsesPhysic
+ {
+ public:
+   WeakBlock(const lisp::Lisp&amp; lisp);
+@@ -55,8 +55,6 @@
+     STATE_DISINTEGRATING /**&lt; crumbling to dust, no longer solid */
+   };
+   State state;
+-
+-  Physic physic;
+ };
+ 
+ #endif
+
+Modified: trunk/supertux/src/physic.hpp
+===================================================================
+--- trunk/supertux/src/physic.hpp	2007-01-04 23:37:27 UTC (rev 4529)
++++ trunk/supertux/src/physic.hpp	2007-01-05 15:43:18 UTC (rev 4530)
+@@ -87,4 +87,11 @@
+   float gravity;
+ };
+ 
++class UsesPhysic
++{
++public:
++  Physic physic;
++  friend class Sector;
++};
++
+ #endif
+
+Modified: trunk/supertux/src/sector.cpp
+===================================================================
+--- trunk/supertux/src/sector.cpp	2007-01-04 23:37:27 UTC (rev 4529)
++++ trunk/supertux/src/sector.cpp	2007-01-05 15:43:18 UTC (rev 4530)
+@@ -74,7 +74,7 @@
+ 
+ Sector::Sector(Level* parent)
+   : level(parent), currentmusic(LEVEL_MUSIC),
+-  ambient_light( 1.0f, 1.0f, 1.0f, 1.0f ), gravity(10), player(0), camera(0) 
++  ambient_light( 1.0f, 1.0f, 1.0f, 1.0f ), gravity(1000.0), player(0), camera(0) 
+ {
+   add_object(new Player(player_status, &quot;Tux&quot;));
+   add_object(new DisplayEffect(&quot;Effect&quot;));
+@@ -708,6 +708,13 @@
+     this-&gt;player = player;
+   }
+ 
++  UsesPhysic *physic_object = dynamic_cast&lt;UsesPhysic *&gt;(object);
++  if(physic_object)
++  {
++    physic_object-&gt;physic.set_gravity(gravity);
++  }
++
++
+   if(_current == this) {
+     try_expose(object);
+   }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000008.html">[Supertux-commit] r4529 - in trunk/supertux: data/levels/test	man/man6 src/object
+</A></li>
+	<LI>Next message: <A HREF="000010.html">[Supertux-commit] r4532 - trunk/supertux/src/object
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#9">[ date ]</a>
+              <a href="thread.html#9">[ thread ]</a>
+              <a href="subject.html#9">[ subject ]</a>
+              <a href="author.html#9">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/supertux-commit">More information about the Supertux-commit
+mailing list</a><br>
+</body></html>

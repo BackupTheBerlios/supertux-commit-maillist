@@ -1,0 +1,24 @@
+From penguin at solvers.com  Mon Mar 19 00:59:09 2007
+From: penguin at solvers.com (Alan Mandel)
+Date: Sun, 18 Mar 2007 17:59:09 -0600
+Subject: [Supertux-commit] Story
+Message-ID: <45FDD24D.4090107@solvers.com>
+
+Hello all,
+
+I'm pretty new here, but I think I have come up with a pretty good new 
+character: please tell me what you think:
+
+Salsa is a penguin who is the ruler of one of the worlds/islands 
+<http://supertux.lethargik.org/wiki/World>. Salsa had all of his 
+treasures taken away by Nolok, when his beautiful Royal City was raided 
+by him. He meets up with Tux and goes help him free Penny. When he does 
+free her, he discovers she is his long lost sister. He takes the 
+treasure, and Tux, Penny, and Salsa all live in the world Salsa rules as 
+kings.
+
+I'm open to all suggestions, so please mail me back.
+
+
+
+

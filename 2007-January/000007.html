@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Supertux-commit] r4528 -	trunk/supertux-sharp/supertux-editor/LevelObjects
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/supertux-commit/2007-January/index.html" >
+   <LINK REL="made" HREF="mailto:supertux-commit%40lists.berlios.de?Subject=Re%3A%20%5BSupertux-commit%5D%20r4528%20-%0A%09trunk/supertux-sharp/supertux-editor/LevelObjects&In-Reply-To=%3C200701041519.l04FJke3006973%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000006.html">
+   <LINK REL="Next"  HREF="000008.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Supertux-commit] r4528 -	trunk/supertux-sharp/supertux-editor/LevelObjects</H1>
+    <B>sommer at BerliOS</B> 
+    <A HREF="mailto:supertux-commit%40lists.berlios.de?Subject=Re%3A%20%5BSupertux-commit%5D%20r4528%20-%0A%09trunk/supertux-sharp/supertux-editor/LevelObjects&In-Reply-To=%3C200701041519.l04FJke3006973%40sheep.berlios.de%3E"
+       TITLE="[Supertux-commit] r4528 -	trunk/supertux-sharp/supertux-editor/LevelObjects">sommer at mail.berlios.de
+       </A><BR>
+    <I>Thu Jan  4 16:19:46 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000006.html">[Supertux-commit] r4527 -	trunk/supertux-sharp/supertux-editor/LevelObjects
+</A></li>
+        <LI>Next message: <A HREF="000008.html">[Supertux-commit] r4529 - in trunk/supertux: data/levels/test	man/man6 src/object
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#7">[ date ]</a>
+              <a href="thread.html#7">[ thread ]</a>
+              <a href="subject.html#7">[ subject ]</a>
+              <a href="author.html#7">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: sommer
+Date: 2007-01-04 16:19:45 +0100 (Thu, 04 Jan 2007)
+New Revision: 4528
+
+Modified:
+   trunk/supertux-sharp/supertux-editor/LevelObjects/Objects.cs
+   trunk/supertux-sharp/supertux-editor/LevelObjects/SimpleObject.cs
+Log:
+Editor supports assigning &quot;dead-script&quot;s to any Badguy now 
+
+
+Modified: trunk/supertux-sharp/supertux-editor/LevelObjects/Objects.cs
+===================================================================
+--- trunk/supertux-sharp/supertux-editor/LevelObjects/Objects.cs	2007-01-04 15:16:44 UTC (rev 4527)
++++ trunk/supertux-sharp/supertux-editor/LevelObjects/Objects.cs	2007-01-04 15:19:45 UTC (rev 4528)
+@@ -304,10 +304,6 @@
+                 Target = SupertuxObjectAttribute.Usage.LevelOnly)]
+ public sealed class Yeti : SimpleObject
+ {
+-	[LispChild(&quot;dead-script&quot;)]
+-	[EditScriptSetting]
+-	public String DeadScript = &quot;&quot;;
+-
+ 	public Yeti() {
+ 		Sprite = SpriteManager.Create(&quot;images/creatures/yeti/yeti.sprite&quot;);
+ 		Sprite.Action = &quot;stand-left&quot;;
+
+Modified: trunk/supertux-sharp/supertux-editor/LevelObjects/SimpleObject.cs
+===================================================================
+--- trunk/supertux-sharp/supertux-editor/LevelObjects/SimpleObject.cs	2007-01-04 15:16:44 UTC (rev 4527)
++++ trunk/supertux-sharp/supertux-editor/LevelObjects/SimpleObject.cs	2007-01-04 15:19:45 UTC (rev 4528)
+@@ -125,6 +125,10 @@
+ 	[PropertyProperties(Tooltip = &quot;Direction the badguy will be facing initaly.&quot;)]
+ 	[LispChild(&quot;direction&quot;, Optional = true, Default = Directions.auto)]
+ 	public Directions Direction = Directions.auto;
++
++	[LispChild(&quot;dead-script&quot;, Optional = true, Default = &quot;&quot;)]
++	[EditScriptSetting]
++	public String DeadScript = &quot;&quot;;
+ }
+ 
+ /// &lt;summary&gt;Base class for area objects in levels&lt;/summary&gt;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000006.html">[Supertux-commit] r4527 -	trunk/supertux-sharp/supertux-editor/LevelObjects
+</A></li>
+	<LI>Next message: <A HREF="000008.html">[Supertux-commit] r4529 - in trunk/supertux: data/levels/test	man/man6 src/object
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#7">[ date ]</a>
+              <a href="thread.html#7">[ thread ]</a>
+              <a href="subject.html#7">[ subject ]</a>
+              <a href="author.html#7">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/supertux-commit">More information about the Supertux-commit
+mailing list</a><br>
+</body></html>

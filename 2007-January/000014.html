@@ -1,0 +1,197 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Supertux-commit] r4536 - in trunk/supertux/src: . object
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/supertux-commit/2007-January/index.html" >
+   <LINK REL="made" HREF="mailto:supertux-commit%40lists.berlios.de?Subject=Re%3A%20%5BSupertux-commit%5D%20r4536%20-%20in%20trunk/supertux/src%3A%20.%20object&In-Reply-To=%3C200701082156.l08LuLCA018512%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000013.html">
+   <LINK REL="Next"  HREF="000015.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Supertux-commit] r4536 - in trunk/supertux/src: . object</H1>
+    <B>sommer at BerliOS</B> 
+    <A HREF="mailto:supertux-commit%40lists.berlios.de?Subject=Re%3A%20%5BSupertux-commit%5D%20r4536%20-%20in%20trunk/supertux/src%3A%20.%20object&In-Reply-To=%3C200701082156.l08LuLCA018512%40sheep.berlios.de%3E"
+       TITLE="[Supertux-commit] r4536 - in trunk/supertux/src: . object">sommer at mail.berlios.de
+       </A><BR>
+    <I>Mon Jan  8 22:56:21 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000013.html">[Supertux-commit] r4535 - in trunk/supertux: data/levels/world1 src
+</A></li>
+        <LI>Next message: <A HREF="000015.html">[Supertux-commit] r4537 - trunk/supertux/src/worldmap
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#14">[ date ]</a>
+              <a href="thread.html#14">[ thread ]</a>
+              <a href="subject.html#14">[ subject ]</a>
+              <a href="author.html#14">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: sommer
+Date: 2007-01-08 22:56:21 +0100 (Mon, 08 Jan 2007)
+New Revision: 4536
+
+Modified:
+   trunk/supertux/src/object/tilemap.cpp
+   trunk/supertux/src/object/tilemap.hpp
+   trunk/supertux/src/sector.cpp
+Log:
+Improve loading of old levels: Don't quit when background is missing, ignore music, fill empty space at bottom with black tiles
+
+
+Modified: trunk/supertux/src/object/tilemap.cpp
+===================================================================
+--- trunk/supertux/src/object/tilemap.cpp	2007-01-08 21:24:52 UTC (rev 4535)
++++ trunk/supertux/src/object/tilemap.cpp	2007-01-08 21:56:21 UTC (rev 4536)
+@@ -257,7 +257,7 @@
+ }
+ 
+ void
+-TileMap::resize(int new_width, int new_height)
++TileMap::resize(int new_width, int new_height, int fill_id)
+ {
+   if(new_width &lt; width) {
+     // remap tiles for new width
+@@ -268,14 +268,14 @@
+     }
+   }
+ 
+-  tiles.resize(new_width * new_height);
++  tiles.resize(new_width * new_height, fill_id);
+ 
+   if(new_width &gt; width) {
+     // remap tiles
+     for(int y = std::min(height, new_height)-1; y &gt;= 0; --y) {
+       for(int x = new_width-1; x &gt;= 0; --x) {
+         if(x &gt;= width) {
+-          tiles[y * new_width + x] = 0;
++          tiles[y * new_width + x] = fill_id;
+           continue;
+         }
+ 
+
+Modified: trunk/supertux/src/object/tilemap.hpp
+===================================================================
+--- trunk/supertux/src/object/tilemap.hpp	2007-01-08 21:24:52 UTC (rev 4535)
++++ trunk/supertux/src/object/tilemap.hpp	2007-01-08 21:56:21 UTC (rev 4536)
+@@ -74,7 +74,7 @@
+   /** resizes the tilemap to a new width and height (tries to not destroy the
+    * existing map)
+    */
+-  void resize(int newwidth, int newheight);
++  void resize(int newwidth, int newheight, int fill_id = 0);
+ 
+   size_t get_width() const
+   { return width; }
+
+Modified: trunk/supertux/src/sector.cpp
+===================================================================
+--- trunk/supertux/src/sector.cpp	2007-01-08 21:24:52 UTC (rev 4535)
++++ trunk/supertux/src/sector.cpp	2007-01-08 21:56:21 UTC (rev 4536)
+@@ -28,6 +28,7 @@
+ #include &lt;float.h&gt;
+ #include &lt;math.h&gt;
+ #include &lt;limits&gt;
++#include &lt;physfs.h&gt;
+ 
+ #include &quot;sector.hpp&quot;
+ #include &quot;object/player.hpp&quot;
+@@ -226,8 +227,17 @@
+   reader.get(&quot;gravity&quot;, gravity);
+ 
+   std::string backgroundimage;
+-  reader.get(&quot;background&quot;, backgroundimage);
+-  if (backgroundimage == &quot;arctis2.jpg&quot;) backgroundimage = &quot;arctis.jpg&quot;;
++  if (reader.get(&quot;background&quot;, backgroundimage)) {
++    if (backgroundimage == &quot;arctis.png&quot;) backgroundimage = &quot;arctis.jpg&quot;;
++    if (backgroundimage == &quot;arctis2.jpg&quot;) backgroundimage = &quot;arctis.jpg&quot;;
++    if (backgroundimage == &quot;ocean.png&quot;) backgroundimage = &quot;ocean.jpg&quot;;
++    backgroundimage = &quot;images/background/&quot; + backgroundimage;
++    if (!PHYSFS_exists(backgroundimage.c_str())) {
++      log_warning &lt;&lt; &quot;Background image \&quot;&quot; &lt;&lt; backgroundimage &lt;&lt; &quot;\&quot; not found. Ignoring.&quot; &lt;&lt; std::endl;
++      backgroundimage = &quot;&quot;;
++    }
++  }
++
+   float bgspeed = .5;
+   reader.get(&quot;bkgd_speed&quot;, bgspeed);
+   bgspeed /= 100;
+@@ -250,8 +260,7 @@
+ 
+   if(backgroundimage != &quot;&quot;) {
+     Background* background = new Background();
+-    background-&gt;set_image(
+-            std::string(&quot;images/background/&quot;) + backgroundimage, bgspeed);
++    background-&gt;set_image(backgroundimage, bgspeed);
+     add_object(background);
+   } else {
+     Gradient* gradient = new Gradient();
+@@ -278,7 +287,10 @@
+   spawnpoints.push_back(spawn);
+ 
+   music = &quot;chipdisko.ogg&quot;;
++  // skip reading music filename. It's all .ogg now, anyway
++  /*
+   reader.get(&quot;music&quot;, music);
++  */
+   music = &quot;music/&quot; + music;
+ 
+   int width = 30, height = 15;
+@@ -299,18 +311,24 @@
+       }
+     }
+ 
++    if (height &lt; 19) tilemap-&gt;resize(width, 19);
+     add_object(tilemap);
+   }
+ 
+   if(reader.get_vector(&quot;background-tm&quot;, tiles)) {
+     TileMap* tilemap = new TileMap();
+     tilemap-&gt;set(width, height, tiles, LAYER_BACKGROUNDTILES, false);
++    if (height &lt; 19) tilemap-&gt;resize(width, 19);
+     add_object(tilemap);
+   }
+ 
+   if(reader.get_vector(&quot;foreground-tm&quot;, tiles)) {
+     TileMap* tilemap = new TileMap();
+     tilemap-&gt;set(width, height, tiles, LAYER_FOREGROUNDTILES, false);
++    
++    // fill additional space in foreground with tiles of ID 2035 (lightmap/black)
++    if (height &lt; 19) tilemap-&gt;resize(width, 19, 2035); 
++
+     add_object(tilemap);
+   }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000013.html">[Supertux-commit] r4535 - in trunk/supertux: data/levels/world1 src
+</A></li>
+	<LI>Next message: <A HREF="000015.html">[Supertux-commit] r4537 - trunk/supertux/src/worldmap
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#14">[ date ]</a>
+              <a href="thread.html#14">[ thread ]</a>
+              <a href="subject.html#14">[ subject ]</a>
+              <a href="author.html#14">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/supertux-commit">More information about the Supertux-commit
+mailing list</a><br>
+</body></html>
